@@ -1,64 +1,102 @@
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
+// File: src/main/java/quiz/app/HomeFragment.java
+package quiz.app;
 
 import android.os.Bundle;
-import android.view.MenuItem;
-import android.widget.Toolbar;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.TextView;
 
-import com.google.android.material.navigation.NavigationView;
+import androidx.fragment.app.Fragment;
 
-public class Home extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
-    private DrawerLayout drawerLayout;
+public class HomeFragment extends Fragment {
+
+    private TextView questionTextView;
+    private RadioGroup radioGroup;
+    private RadioButton radioButtonA, radioButtonB, radioButtonC, radioButtonD;
+    private Button btnSubmit;
+
+    private int currentQuestionIndex = 0;  // Index to track the current question
+
+    private String questions[] = {
+            "What is 10+26 ?",
+            "Who invented Telephone?",
+            "What is 12*9 ?",
+            "Who is the founder of SpaceX?",
+            "In the given options, which is the example of System Software?"
+    };
+
+    private String choices[][] = {
+            {"32", "42", "36", "38"},
+            {"Graham Bell", "Einstein", "Edison", "None of the above"},
+            {"96", "84", "102", "108"},
+            {"Jeff Bezos", "Elon Musk", "Steve Jobs", "Bill Gates"},
+            {"Windows", "Linux", "MacOS", "All of the above"}
+    };
+
+    private String correctAnswers[] = {
+            "36",
+            "Graham Bell",
+            "108",
+            "Elon Musk",
+            "All of the above"
+    };
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_home, container, false);
 
-        androidx.appcompat.widget.Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        questionTextView = view.findViewById(R.id.questionTextView);
+        radioGroup = view.findViewById(R.id.radioGroup);
+        radioButtonA = view.findViewById(R.id.radioButtonA);
+        radioButtonB = view.findViewById(R.id.radioButtonB);
+        radioButtonC = view.findViewById(R.id.radioButtonC);
+        radioButtonD = view.findViewById(R.id.radioButtonD);
+        btnSubmit = view.findViewById(R.id.btnSubmit);
 
-        drawerLayout = findViewById(R.id.drawer_layout);
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+        displayQuestion();
 
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this,drawerLayout,toolbar,R.string.open_nav,R.string.close_nav);
+        btnSubmit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                checkAnswer();
+                // Move to the next question
+                currentQuestionIndex++;
+                if (currentQuestionIndex < questions.length) {
+                    displayQuestion();
+                } else {
+                    // Display a message or navigate to the result screen
+                }
+            }
+        });
 
-        drawerLayout.addDrawerListener(toggle);
-        toggle.syncState();
-
-        if(savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new HomeFragrment()).commit();
-            navigationView.setCheckedItem(R.id.nav_home);
-        }
-
+        return view;
     }
 
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.nav_home:
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragrment()).commit();
-                break;
+    private void displayQuestion() {
+        questionTextView.setText(questions[currentQuestionIndex]);
+        radioButtonA.setText(choices[currentQuestionIndex][0]);
+        radioButtonB.setText(choices[currentQuestionIndex][1]);
+        radioButtonC.setText(choices[currentQuestionIndex][2]);
+        radioButtonD.setText(choices[currentQuestionIndex][3]);
 
-
-            case R.id.nav_questions:
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new questionsFragment()).commit();
-                break;
-
-        }
-        drawerLayout.closeDrawer(GravityCompat.START);
-        return true;
+        // Clear the selected radio button
+        radioGroup.clearCheck();
     }
 
-    @Override
-    public void onBackPressed() {
-        if(drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START);
+    private void checkAnswer() {
+        int selectedRadioButtonId = radioGroup.getCheckedRadioButtonId();
+        if (selectedRadioButtonId != -1) {
+            RadioButton selectedRadioButton = getView().findViewById(selectedRadioButtonId);
+            String selectedAnswer = selectedRadioButton.getText().toString();
+            String correctAnswer = correctAnswers[currentQuestionIndex];
+            // Compare selectedAnswer with correctAnswer and handle accordingly
+            // You can display a message or update a score variable, etc.
         } else {
-            super.onBackPressed();
+            // Handle the case where no option is selected
         }
     }
 }
